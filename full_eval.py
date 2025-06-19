@@ -25,6 +25,12 @@ parser.add_argument("--skip_metrics", action="store_true")
 parser.add_argument("--output_path", default="/mnt/output/2dgs/eval")
 
 
+extra_args = {
+  "ref_real/sedan": " -r 8",
+  "ref_real/gardenspheres": " -r 4",
+  "ref_real/toycar": " -r 4",
+}
+
 args, _ = parser.parse_known_args()
 
 all_scenes = []
@@ -45,7 +51,8 @@ if not args.skip_training:
     start_time = time.time()
     for scene in ref_real_scenes:
         source = args.ref_real + "/" + scene
-        os.system("python train.py -s " + source + " -m " + args.output_path + "/" + scene + common_args)
+        extra = extra_args[scene]
+        os.system("python train.py -s " + source + " -m " + args.output_path + "/" + scene + common_args + extra)
     ref_real_timing = (time.time() - start_time)/60.0
     
     start_time = time.time()
