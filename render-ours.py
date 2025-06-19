@@ -11,7 +11,8 @@
 
 import torch
 from scene import Scene
-import os
+import os, time
+import numpy as np
 from tqdm import tqdm
 from os import makedirs
 from gaussian_renderer import render, render_env_map
@@ -33,8 +34,12 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
         normals_path = os.path.join(model_path, name, "2dgs_{}".format(iteration), "normals")
         makedirs(normals_path, exist_ok=True)
 
+    render_times = []
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
+        t1 = time.time()
         render_pkg = render(view, gaussians, pipeline, background)
+        render_time = time.time() - t1
+        render_times.append(render_time)
         rendering = render_pkg["render"]
         gt = view.original_image
 
@@ -46,6 +51,10 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
             normals = normals*0.5+0.5
             torchvision.utils.save_image(normals, os.path.join(normals_path, '{0:05d}'.format(idx) + ".png"))
 
+    with open(model_path + "/fps.txt", 'w') as fp:
+        fps = 1.0/np.array(render_times).mean()
+        fp.write('fps:{}\n'.format(fps))
+        fp.write('count:{}'.format(len(gaussians.get_xyz)))
 
 def render_sets(dataset : ModelParams, iteration : int, pipeline : PipelineParams, skip_train : bool, skip_test : bool, render_normals : bool):
     with torch.no_grad():
