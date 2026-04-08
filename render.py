@@ -42,7 +42,7 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
         torchvision.utils.save_image(gt, os.path.join(gts_path, '{0:05d}'.format(idx) + ".png"))
 
         if render_normals:
-            normals = render_pkg["normal_map"]
+            normals = render_pkg["rend_normal"]
             normals = normals*0.5+0.5
             torchvision.utils.save_image(normals, os.path.join(normals_path, '{0:05d}'.format(idx) + ".png"))
 
